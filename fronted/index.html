@@ -4,18 +4,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat App</title>
+
+    <title>Chat Window</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="chat-container">
+
+        <!-- Chat Header -->
+        <div class="chat-header">
+
+            <div class="user-info">
+
+                <div class="profile-image">
+                    A
+                </div>
+
+                <div>
+                    <h3>Atul</h3>
+                    <p>Online</p>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages">
+
+            <div class="message received">
+
+                <p>Hello! 👋</p>
+
+                <span>10:30 PM</span>
+
+            </div>
+
+
+            <div class="message sent">
+
+                <p>Hello! How are you?</p>
+
+                <span>10:31 PM</span>
+
+            </div>
+
+
+            <div class="message received">
+
+                <p>I'm good. What about you?</p>
+
+                <span>10:32 PM</span>
+
+            </div>
+
+
+            <div class="message sent">
+
+                <p>I'm also good 😊</p>
+
+                <span>10:33 PM</span>
+
+            </div>
+
+        </div>
+
+
+        <!-- Message Input -->
+        <div class="message-input">
+
+            <input
+                type="text"
+                id="messageInput"
+                placeholder="Type a message..."
+            >
+
+            <button id="sendButton">
+                Send
+            </button>
+
+        </div>
 
     </div>
 
+
+    <script src="script.js"></script>
+
 </body>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.20.0/dist/axios.min.js"></script>
-<script src="script.js"></script>
 
 </html>
