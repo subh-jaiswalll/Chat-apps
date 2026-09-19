@@ -1,6 +1,6 @@
 const signupForm = document.getElementById("signupForm");
 
-signupForm.addEventListener("submit", async function(event) {
+signupForm.addEventListener("submit", async function (event) {
 
     event.preventDefault();
 
@@ -9,28 +9,34 @@ signupForm.addEventListener("submit", async function(event) {
     const number = document.getElementById("inpNumber").value;
     const password = document.getElementById("inpPassword").value;
 
-    console.log("Name:", name);
-    console.log("Email:", email);
-    console.log("Number:", number);
-    console.log("Password:", password);
+    const response = await fetch(
+        "http://localhost:3000/user/signup",
+        {
+            method: "POST",
 
-    const response = await fetch("http://localhost:3000/user/signup", {
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-            name: name,
-            email: email,
-            number: number,
-            password: password
-        })
-    });
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                number: number,
+                password: password
+            })
+        }
+    );
 
     const data = await response.json();
 
-    console.log(data);
+    if (response.ok) {
+
+        alert("Signup successful");
+
+        window.location.href = "login.html";
+
+    } else {
+
+        alert(data.message);
+    }
 });

@@ -4,59 +4,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+
+    <title>Signup</title>
+
     <link rel="stylesheet" href="signup.css">
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="signup-container">
 
-        <h2>Sign Up</h2>
+        <h2>Create Account</h2>
 
         <form id="signupForm">
 
-            <label for="inpName">Name</label>
             <input
                 type="text"
-                name="name"
                 id="inpName"
-                placeholder="Enter your name"
+                placeholder="Enter name"
             >
 
-            <label for="inpEmail">Email</label>
             <input
                 type="email"
-                name="email"
                 id="inpEmail"
-                placeholder="Enter your email"
+                placeholder="Enter email"
             >
 
-            <label for="inpNumber">Phone number</label>
             <input
-                type="tel"
-                name="number"
+                type="text"
                 id="inpNumber"
-                placeholder="Enter your phone number"
+                placeholder="Enter phone number"
             >
 
-            <label for="inpPassword">Password</label>
             <input
                 type="password"
-                name="password"
                 id="inpPassword"
-                placeholder="Enter your password"
+                placeholder="Enter password"
             >
 
-            <button type="submit">Sign Up</button>
+            <button type="submit">
+                Sign Up
+            </button>
 
         </form>
 
-        <p id="message"></p>
+        <p>
+            Already have an account?
+            <a href="/fronted/login/login.html">Login</a>
+        </p>
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.20.0/dist/axios.min.js"></script>
     <script src="signup.js"></script>
 
 </body>

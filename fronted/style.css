@@ -205,7 +205,51 @@ body {
     background-color: #064e46;
 }
 
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
+.login-link {
+    color: white;
+    text-decoration: none;
+
+    background: #078f8f;
+
+    padding: 8px 14px;
+
+    border-radius: 6px;
+
+    font-size: 14px;
+}
+
+.login-link:hover {
+    background: #067777;
+}
+
+
+/* Login / Logout Button */
+
+.logout-button {
+    border: none;
+
+    color: white;
+
+    background-color: #078f8f;
+
+    padding: 8px 14px;
+
+    border-radius: 6px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background-color: #067777;
+}
 /* Mobile */
 
 @media (max-width: 600px) {

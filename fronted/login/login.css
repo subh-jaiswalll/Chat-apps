@@ -1,0 +1,103 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f2f5f7;
+
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    width: 350px;
+
+    background: white;
+
+    padding: 30px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.login-container h2 {
+    text-align: center;
+
+    margin-bottom: 25px;
+
+    color: #078f8f;
+}
+
+#loginForm {
+    display: flex;
+    flex-direction: column;
+
+    gap: 15px;
+}
+
+#loginForm input {
+    width: 100%;
+
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    outline: none;
+}
+
+#loginForm input:focus {
+    border-color: #078f8f;
+}
+
+#loginForm button {
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: #078f8f;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+}
+
+#loginForm button:hover {
+    background: #067777;
+}
+
+.login-container p {
+    text-align: center;
+
+    margin-top: 20px;
+
+    font-size: 14px;
+
+    color: #555;
+}
+
+.login-container a {
+    color: #078f8f;
+
+    text-decoration: none;
+
+    font-weight: bold;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}

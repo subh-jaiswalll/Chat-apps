@@ -4,31 +4,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Page</title>
+
+    <title>Login</title>
+
     <link rel="stylesheet" href="login.css">
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="login-container">
+
         <h2>Login</h2>
 
-        <div id="loginForm">
+        <form id="loginForm">
 
-            <label for="identifer">Name or Email</label>
-            <input type="text" name="identifer" id="identifer" placeholder="Enter email or phone number">
+            <input
+                type="text"
+                id="identifier"
+                placeholder="Email or Phone"
+            >
 
-            <label for="password"> Password</label>
-            <input type="password" name="password" id="password" placeholder="Enter password">
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+            >
 
+            <button type="submit">
+                Login
+            </button>
 
-            <button type="submit">Login</button>
-        </div>
+        </form>
 
-        <p id="message"></p>
+        <p>
+            Don't have an account?
+            <a href="/fronted/signup/signup.html">Sign Up</a>
+        </p>
+
     </div>
 
+    <script src="login.js"></script>
+
 </body>
-<script src="https://cdn.jsdelivr.net/npm/axios@1.20.0/dist/axios.min.js"></script>
-<script src="login.js"></script>
+
 </html>

@@ -2,12 +2,18 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Chat Window</title>
 
     <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
@@ -15,66 +21,46 @@
     <div class="chat-container">
 
         <!-- Chat Header -->
+
         <div class="chat-header">
 
             <div class="user-info">
 
-                <div class="profile-image">
+                <div class="profile-image" id="profileImage">
                     A
                 </div>
 
                 <div>
-                    <h3>Atul</h3>
+                    <h3 id="userName">Loading...</h3>
                     <p>Online</p>
                 </div>
 
             </div>
 
+            <!-- Logout -->
+
+            <button
+                id="logoutButton"
+                class="logout-button"
+            >
+                Logout
+            </button>
+
         </div>
 
 
         <!-- Messages -->
-        <div class="chat-messages" id="chatMessages">
 
-            <div class="message received">
-
-                <p>Hello! 👋</p>
-
-                <span>10:30 PM</span>
-
-            </div>
-
-
-            <div class="message sent">
-
-                <p>Hello! How are you?</p>
-
-                <span>10:31 PM</span>
-
-            </div>
-
-
-            <div class="message received">
-
-                <p>I'm good. What about you?</p>
-
-                <span>10:32 PM</span>
-
-            </div>
-
-
-            <div class="message sent">
-
-                <p>I'm also good 😊</p>
-
-                <span>10:33 PM</span>
-
-            </div>
+        <div
+            class="chat-messages"
+            id="chatMessages"
+        >
 
         </div>
 
 
         <!-- Message Input -->
+
         <div class="message-input">
 
             <input

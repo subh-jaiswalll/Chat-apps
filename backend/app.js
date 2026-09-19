@@ -6,6 +6,8 @@ const cors = require("cors");
 const sequelize = require("./utils/db");
 const User = require("./models/userModels.js");
 const userRoutes = require("./routes/userRoutes.js");
+const messageRoutes = require("./routes/messageRoutes.js");
+
 
 const app = express();
 
@@ -13,6 +15,8 @@ app.use(cors());
 app.use(express.json());   // ⭐ important
 
 app.use("/user", userRoutes);
+app.use("/message", messageRoutes);
+
 
 app.get("/", (req, res) => {
     res.send("Hello Chats");
