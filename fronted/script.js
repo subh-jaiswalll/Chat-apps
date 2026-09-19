@@ -1,240 +1,272 @@
 const messageInput = document.getElementById("messageInput");
+
 const sendButton = document.getElementById("sendButton");
+
 const chatMessages = document.getElementById("chatMessages");
 
 const userName = document.getElementById("userName");
-const profileImage = document.getElementById("profileImage");
-const logoutButton = document.getElementById("logoutButton");
 
+const profileImage = document.getElementById("profileImage");
+
+const logoutButton = document.getElementById("logoutButton");
 
 // Check login status
 
 const token = localStorage.getItem("token");
 
-
-// Change button according to login status
+// Change Login / Logout button
 
 if (token) {
-
-    logoutButton.textContent = "Logout";
-
+  logoutButton.textContent = "Logout";
 } else {
-
-    logoutButton.textContent = "Login";
+  logoutButton.textContent = "Login";
 }
 
-
-// Button click
+// Login / Logout button
 
 logoutButton.addEventListener("click", function () {
+  const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+  if (token) {
+    // User is logged in
+    // Logout
 
+    localStorage.removeItem("token");
 
-    if (token) {
+    localStorage.removeItem("userId");
 
-        // User is logged in
-        // So logout
+    window.location.href = "/fronted/login/login.html";
+  } else {
+    // User is not logged in
+    // Go to login page
 
-        localStorage.removeItem("token");
-
-        window.location.href = "/fronted/login/login.html";
-
-    } else {
-
-        // User is not logged in
-        // So go to login
-
-        window.location.href = "/fronted/login/login.html";
-    }
-
+    window.location.href = "/fronted/login/login.html";
+  }
 });
 
-
-// Send message when button is clicked
+// Send message button
 
 sendButton.addEventListener("click", sendMessage);
 
-
-// Send message when Enter is pressed
+// Send message with Enter
 
 messageInput.addEventListener("keypress", function (event) {
-
-    if (event.key === "Enter") {
-        sendMessage();
-    }
-
+  if (event.key === "Enter") {
+    sendMessage();
+  }
 });
-
 
 // Load user profile
 
 async function loadUserProfile() {
+  const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+  // User is not logged in
 
+  if (!token) {
+    userName.textContent = "Guest";
 
-    // No token
+    profileImage.textContent = "G";
 
-    if (!token) {
+    logoutButton.textContent = "Login";
 
-        userName.textContent = "Guest";
+    return;
+  }
 
-        profileImage.textContent = "G";
+  // User is logged in
 
-        return;
-    }
+  const response = await fetch("http://localhost:3000/user/profile", {
+    method: "GET",
 
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
-    // Token exists
+  const data = await response.json();
 
-    const response = await fetch(
-        "http://localhost:3000/user/profile",
-        {
-            method: "GET",
+  if (response.ok) {
+    // Show user name
 
-            headers: {
-                "Authorization": `Bearer ${token}`
-            }
-        }
-    );
+    userName.textContent = data.name;
 
+    // Show first letter
 
-    const data = await response.json();
+    profileImage.textContent = data.name.charAt(0).toUpperCase();
 
+    // Save user ID
 
-    if (response.ok) {
+    localStorage.setItem("userId", data.id);
 
-        userName.textContent = data.name;
+    // Change button
 
-        profileImage.textContent =
-            data.name.charAt(0).toUpperCase();
+    logoutButton.textContent = "Logout";
+  } else {
+    // Token is invalid or expired
 
+    localStorage.removeItem("token");
 
-        // User is logged in
+    localStorage.removeItem("userId");
 
-        logoutButton.textContent = "Logout";
+    userName.textContent = "Guest";
 
-    } else {
+    profileImage.textContent = "G";
 
-        // Invalid or expired token
-
-        localStorage.removeItem("token");
-
-        userName.textContent = "Guest";
-
-        profileImage.textContent = "G";
-
-        logoutButton.textContent = "Login";
-    }
+    logoutButton.textContent = "Login";
+  }
 }
 
+// Get messages from database
+
+async function loadMessages() {
+  const token = localStorage.getItem("token");
+
+  // If user is not logged in,
+  // don't load messages
+
+  if (!token) {
+    return;
+  }
+
+  const response = await fetch("http://localhost:3000/message", {
+    method: "GET",
+
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (response.ok) {
+    // Remove old messages
+    // before loading database messages
+
+    chatMessages.innerHTML = "";
+
+    // Display every message
+
+    data.data.forEach(function (message) {
+      addMessage(message.message, message.userId, message.createdAt);
+    });
+  } else {
+    alert(data.message);
+  }
+}
 
 // Send message
 
 async function sendMessage() {
+  const messageText = messageInput.value.trim();
 
-    const messageText = messageInput.value.trim();
+  // Don't send empty message
 
+  if (messageText === "") {
+    return;
+  }
 
-    if (messageText === "") {
-        return;
-    }
+  const token = localStorage.getItem("token");
 
+  // Login required
 
-    const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/fronted/login/login.html";
 
+    return;
+  }
 
-    // Login required for sending message
+  const response = await fetch("http://localhost:3000/message/send", {
+    method: "POST",
 
-    if (!token) {
+    headers: {
+      "Content-Type": "application/json",
 
-        window.location.href = "/fronted/login/login.html";
+      Authorization: `Bearer ${token}`,
+    },
 
-        return;
-    }
+    body: JSON.stringify({
+      message: messageText,
+    }),
+  });
 
+  const data = await response.json();
 
-    const response = await fetch(
-        "http://localhost:3000/message/send",
-        {
-            method: "POST",
+  if (response.ok) {
+    // Show newly sent message
 
-            headers: {
-                "Content-Type": "application/json",
+    addMessage(messageText, localStorage.getItem("userId"), new Date());
 
-                "Authorization": `Bearer ${token}`
-            },
+    // Clear input
 
-            body: JSON.stringify({
-                message: messageText
-            })
-        }
-    );
-
-
-    const data = await response.json();
-
-
-    if (response.ok) {
-
-        addMessage(messageText);
-
-        messageInput.value = "";
-
-    } else {
-
-        alert(data.message);
-    }
+    messageInput.value = "";
+  } else {
+    alert(data.message);
+  }
 }
-
 
 // Add message to chat
 
-function addMessage(messageText) {
+function addMessage(messageText, messageUserId, messageTime) {
+  const message = document.createElement("div");
 
-    const message = document.createElement("div");
+  message.classList.add("message");
 
-    message.classList.add(
-        "message",
-        "sent"
-    );
+  // Get current user ID
 
+  const currentUserId = localStorage.getItem("userId");
 
-    const messageTextElement =
-        document.createElement("p");
+  // Check sender
 
-    messageTextElement.textContent =
-        messageText;
+  if (Number(messageUserId) === Number(currentUserId)) {
+    // Current user's message
 
+    message.classList.add("sent");
+  } else {
+    // Other user's message
 
-    const timeElement =
-        document.createElement("span");
+    message.classList.add("received");
+  }
 
+  // Message text
 
-    const currentTime = new Date();
+  const messageTextElement = document.createElement("p");
 
+  messageTextElement.textContent = messageText;
 
-    timeElement.textContent =
-        currentTime.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit"
-        });
+  // Message time
 
+  const timeElement = document.createElement("span");
 
-    message.appendChild(messageTextElement);
+  const time = new Date(messageTime);
 
-    message.appendChild(timeElement);
+  timeElement.textContent = time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
+  message.appendChild(messageTextElement);
 
-    chatMessages.appendChild(message);
+  message.appendChild(timeElement);
 
+  chatMessages.appendChild(message);
 
-    chatMessages.scrollTop =
-        chatMessages.scrollHeight;
+  // Scroll to latest message
+
+  chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+// Start chat
 
-// Load profile when page opens
+async function startChat() {
+  // First load user
 
-loadUserProfile();
+  await loadUserProfile();
+
+  // Then load messages
+
+  await loadMessages();
+}
+
+// Start
+
+startChat();

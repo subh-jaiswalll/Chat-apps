@@ -1,5 +1,8 @@
 const Message = require("../models/messageModels.js");
 
+
+// Send message
+
 const createMessage = async (req, res) => {
 
     const { message } = req.body;
@@ -21,6 +24,25 @@ const createMessage = async (req, res) => {
     });
 };
 
+
+// Get all messages
+
+const getMessages = async (req, res) => {
+
+    const messages = await Message.findAll({
+        order: [
+            ["createdAt", "ASC"]
+        ]
+    });
+
+    res.status(200).json({
+        message: "Messages fetched successfully",
+        data: messages
+    });
+};
+
+
 module.exports = {
-    createMessage
+    createMessage,
+    getMessages
 };
