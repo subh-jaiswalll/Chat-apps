@@ -1,3 +1,7 @@
+// ========================================
+// GET HTML ELEMENTS
+// ========================================
+
 const messageInput =
     document.getElementById("messageInput");
 
@@ -34,6 +38,7 @@ if (token) {
 
     logoutButton.textContent =
         "Login";
+
 }
 
 
@@ -63,14 +68,14 @@ logoutButton.addEventListener(
 
 
             window.location.href =
-                "../login/login.html";
+                "/fronted/login/login.html";
 
         } else {
 
             // Go to login page
 
             window.location.href =
-                "../login/login.html";
+                "/fronted/login/login.html";
 
         }
 
@@ -102,6 +107,7 @@ async function loadUserProfile() {
             "Login";
 
         return;
+
     }
 
 
@@ -110,12 +116,16 @@ async function loadUserProfile() {
     const response = await fetch(
         "http://localhost:3000/user/profile",
         {
+
             method: "GET",
 
             headers: {
+
                 "Authorization":
                     `Bearer ${token}`
+
             }
+
         }
     );
 
@@ -132,7 +142,7 @@ async function loadUserProfile() {
             data.name;
 
 
-        // Show first letter
+        // Show first letter of name
 
         profileImage.textContent =
             data.name
@@ -179,7 +189,7 @@ async function loadUserProfile() {
 
 
 // ========================================
-// GET OLD MESSAGES FROM DATABASE
+// GET OLD MESSAGES
 // ========================================
 
 async function loadMessages() {
@@ -193,18 +203,25 @@ async function loadMessages() {
     if (!token) {
 
         return;
+
     }
 
+
+    // Get messages from backend
 
     const response = await fetch(
         "http://localhost:3000/message",
         {
+
             method: "GET",
 
             headers: {
+
                 "Authorization":
                     `Bearer ${token}`
+
             }
+
         }
     );
 
@@ -215,7 +232,7 @@ async function loadMessages() {
 
     if (response.ok) {
 
-        // Clear chat
+        // Clear existing messages
 
         chatMessages.innerHTML = "";
 
@@ -226,9 +243,15 @@ async function loadMessages() {
             function (message) {
 
                 addMessage(
+
                     message.message,
+
                     message.userId,
+
+                    message.userName,
+
                     message.createdAt
+
                 );
 
             }
@@ -240,7 +263,7 @@ async function loadMessages() {
 
 
 // ========================================
-// SOCKET.IO
+// SOCKET.IO CONNECTION
 // ========================================
 
 
@@ -253,15 +276,19 @@ const socketToken =
 // Create Socket.IO connection
 
 const socket =
-    io("http://localhost:3000", {
+    io(
+        "http://localhost:3000",
+        {
 
-        auth: {
+            auth: {
 
-            token: socketToken
+                token:
+                    socketToken
+
+            }
 
         }
-
-    });
+    );
 
 
 // ========================================
@@ -275,6 +302,7 @@ socket.on(
         console.log(
             "Socket.IO connected"
         );
+
 
         console.log(
             "Socket ID:",
@@ -317,9 +345,15 @@ socket.on(
 
 
         addMessage(
+
             message.message,
+
             message.userId,
+
+            message.userName,
+
             message.createdAt
+
         );
 
     }
@@ -386,6 +420,7 @@ function sendMessage() {
     if (messageText === "") {
 
         return;
+
     }
 
 
@@ -398,9 +433,10 @@ function sendMessage() {
     if (!token) {
 
         window.location.href =
-            "../login/login.html";
+            "/fronted/login/login.html";
 
         return;
+
     }
 
 
@@ -413,19 +449,23 @@ function sendMessage() {
         );
 
         return;
+
     }
 
 
     // Send only message
 
-    // We DO NOT send userId here.
-    // Backend will identify the user
+    // DO NOT send userId.
+    // Backend identifies the user
     // using the JWT token.
 
     socket.emit(
         "sendMessage",
         {
-            message: messageText
+
+            message:
+                messageText
+
         }
     );
 
@@ -442,10 +482,18 @@ function sendMessage() {
 // ========================================
 
 function addMessage(
+
     messageText,
+
     messageUserId,
+
+    messageUserName,
+
     messageTime
+
 ) {
+
+    // Create message container
 
     const message =
         document.createElement("div");
@@ -456,18 +504,24 @@ function addMessage(
     );
 
 
-    // Current logged-in user
+    // Get current logged-in user
 
     const currentUserId =
         localStorage.getItem("userId");
 
 
-    // Check sender
+    // ========================================
+    // CHECK WHO SENT THE MESSAGE
+    // ========================================
 
     if (
         Number(messageUserId) ===
         Number(currentUserId)
     ) {
+
+        // ========================================
+        // MY MESSAGE
+        // ========================================
 
         message.classList.add(
             "sent"
@@ -475,8 +529,41 @@ function addMessage(
 
     } else {
 
+        // ========================================
+        // OTHER USER'S MESSAGE
+        // ========================================
+
         message.classList.add(
             "received"
+        );
+
+
+        // ========================================
+        // SENDER NAME
+        // ========================================
+
+        const senderElement =
+            document.createElement(
+                "strong"
+            );
+
+
+        // Show sender name
+
+        senderElement.textContent =
+            messageUserName;
+
+
+        // Give each user a fixed color
+
+        senderElement.style.color =
+            getUserColor(messageUserId);
+
+
+        // Add sender name
+
+        message.appendChild(
+            senderElement
         );
 
     }
@@ -510,14 +597,17 @@ function addMessage(
         time.toLocaleTimeString(
             [],
             {
+
                 hour: "2-digit",
+
                 minute: "2-digit"
+
             }
         );
 
 
     // ========================================
-    // ADD TEXT TO MESSAGE
+    // ADD MESSAGE TEXT
     // ========================================
 
     message.appendChild(
@@ -525,24 +615,75 @@ function addMessage(
     );
 
 
-    // Add time
+    // ========================================
+    // ADD MESSAGE TIME
+    // ========================================
 
     message.appendChild(
         timeElement
     );
 
 
-    // Add message to chat
+    // ========================================
+    // ADD MESSAGE TO CHAT
+    // ========================================
 
     chatMessages.appendChild(
         message
     );
 
 
-    // Scroll to bottom
+    // ========================================
+    // SCROLL TO BOTTOM
+    // ========================================
 
     chatMessages.scrollTop =
         chatMessages.scrollHeight;
+
+}
+
+
+// ========================================
+// GET USER COLOR
+// ========================================
+
+function getUserColor(userId) {
+
+    const colors = [
+
+        "#e74c3c",
+
+        "#3498db",
+
+        "#2ecc71",
+
+        "#9b59b6",
+
+        "#f39c12",
+
+        "#1abc9c",
+
+        "#e67e22",
+
+        "#e84393",
+
+        "#16a085",
+
+        "#8e44ad"
+
+    ];
+
+
+    // Convert user ID into number
+
+    const index =
+        Number(userId) %
+        colors.length;
+
+
+    // Return user's color
+
+    return colors[index];
 
 }
 
@@ -553,7 +694,7 @@ function addMessage(
 
 async function startChat() {
 
-    // Load user
+    // Load logged-in user
 
     await loadUserProfile();
 
@@ -565,6 +706,8 @@ async function startChat() {
 }
 
 
-// Start chat
+// ========================================
+// START APPLICATION
+// ========================================
 
 startChat();

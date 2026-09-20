@@ -9,6 +9,7 @@ const { Server } = require("socket.io");
 
 const sequelize = require("./utils/db");
 
+const User = require("./models/userModels.js");
 const Message = require("./models/messageModels.js");
 
 const userRoutes = require("./routes/userRoutes.js");
@@ -75,7 +76,7 @@ const io =
 
 io.use(function (socket, next) {
 
-    // Get token from client
+    // Get JWT token
 
     const token =
         socket.handshake.auth.token;
@@ -105,8 +106,7 @@ io.use(function (socket, next) {
             );
 
 
-        // Store user information
-        // inside socket
+        // Store decoded user information
 
         socket.user =
             decoded;
@@ -117,8 +117,6 @@ io.use(function (socket, next) {
         next();
 
     } catch (error) {
-
-        // Authentication failed
 
         next(
             new Error(
@@ -145,15 +143,11 @@ io.on(
         );
 
 
-        // Show authenticated user ID
-
         console.log(
             "User ID:",
             socket.user.id
         );
 
-
-        // Show authenticated user email
 
         console.log(
             "User Email:",
@@ -162,7 +156,7 @@ io.on(
 
 
         // ========================================
-        // RECEIVE MESSAGE
+        // SEND MESSAGE
         // ========================================
 
         socket.on(
@@ -175,13 +169,25 @@ io.on(
                 );
 
 
-                // Save message in database
+                // Find authenticated user
+
+                const user =
+                    await User.findByPk(
+                        socket.user.id
+                    );
+
+
+                if (!user) {
+
+                    return;
+
+                }
+
+
+                // Save message
 
                 const newMessage =
                     await Message.create({
-
-                        // Get user ID from
-                        // authenticated socket
 
                         userId:
                             socket.user.id,
@@ -205,6 +211,9 @@ io.on(
 
                         userId:
                             newMessage.userId,
+
+                        userName:
+                            user.name,
 
                         message:
                             newMessage.message,
@@ -259,9 +268,7 @@ sequelize
             );
 
 
-            // ========================================
-            // START SERVER
-            // ========================================
+            // Start server
 
             server.listen(
                 process.env.PORT,
@@ -287,9 +294,6 @@ sequelize
 
         }
     );
-
-
-
 
 
 
