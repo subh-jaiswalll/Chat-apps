@@ -17,7 +17,9 @@ const logoutButton =
     document.getElementById("logoutButton");
 
 
-// Check login status
+// ========================================
+// CHECK LOGIN STATUS
+// ========================================
 
 const token =
     localStorage.getItem("token");
@@ -25,15 +27,19 @@ const token =
 
 if (token) {
 
-    logoutButton.textContent = "Logout";
+    logoutButton.textContent =
+        "Logout";
 
 } else {
 
-    logoutButton.textContent = "Login";
+    logoutButton.textContent =
+        "Login";
 }
 
 
-// Login / Logout button
+// ========================================
+// LOGIN / LOGOUT BUTTON
+// ========================================
 
 logoutButton.addEventListener(
     "click",
@@ -47,9 +53,13 @@ logoutButton.addEventListener(
 
             // Logout
 
-            localStorage.removeItem("token");
+            localStorage.removeItem(
+                "token"
+            );
 
-            localStorage.removeItem("userId");
+            localStorage.removeItem(
+                "userId"
+            );
 
 
             window.location.href =
@@ -61,13 +71,16 @@ logoutButton.addEventListener(
 
             window.location.href =
                 "../login/login.html";
+
         }
 
     }
 );
 
 
-// Load user profile
+// ========================================
+// LOAD USER PROFILE
+// ========================================
 
 async function loadUserProfile() {
 
@@ -159,11 +172,15 @@ async function loadUserProfile() {
 
         logoutButton.textContent =
             "Login";
+
     }
+
 }
 
 
-// Get old messages from database
+// ========================================
+// GET OLD MESSAGES FROM DATABASE
+// ========================================
 
 async function loadMessages() {
 
@@ -216,7 +233,9 @@ async function loadMessages() {
 
             }
         );
+
     }
+
 }
 
 
@@ -225,13 +244,29 @@ async function loadMessages() {
 // ========================================
 
 
+// Get JWT token
+
+const socketToken =
+    localStorage.getItem("token");
+
+
 // Create Socket.IO connection
 
 const socket =
-    io("http://localhost:3000");
+    io("http://localhost:3000", {
+
+        auth: {
+
+            token: socketToken
+
+        }
+
+    });
 
 
-// Socket connected
+// ========================================
+// SOCKET CONNECTED
+// ========================================
 
 socket.on(
     "connect",
@@ -241,11 +276,35 @@ socket.on(
             "Socket.IO connected"
         );
 
+        console.log(
+            "Socket ID:",
+            socket.id
+        );
+
     }
 );
 
 
-// Receive new message
+// ========================================
+// SOCKET AUTHENTICATION ERROR
+// ========================================
+
+socket.on(
+    "connect_error",
+    function (error) {
+
+        console.log(
+            "Socket authentication failed:",
+            error.message
+        );
+
+    }
+);
+
+
+// ========================================
+// RECEIVE NEW MESSAGE
+// ========================================
 
 socket.on(
     "newMessage",
@@ -267,7 +326,9 @@ socket.on(
 );
 
 
-// Socket disconnected
+// ========================================
+// SOCKET DISCONNECTED
+// ========================================
 
 socket.on(
     "disconnect",
@@ -310,7 +371,9 @@ messageInput.addEventListener(
 );
 
 
-// Send message
+// ========================================
+// SEND MESSAGE FUNCTION
+// ========================================
 
 function sendMessage() {
 
@@ -341,18 +404,27 @@ function sendMessage() {
     }
 
 
-    // Get current user ID
+    // Check Socket.IO connection
 
-    const userId =
-        localStorage.getItem("userId");
+    if (!socket.connected) {
+
+        alert(
+            "Socket is not connected"
+        );
+
+        return;
+    }
 
 
-    // Send message to server
+    // Send only message
+
+    // We DO NOT send userId here.
+    // Backend will identify the user
+    // using the JWT token.
 
     socket.emit(
         "sendMessage",
         {
-            userId: userId,
             message: messageText
         }
     );
@@ -361,13 +433,13 @@ function sendMessage() {
     // Clear input
 
     messageInput.value = "";
+
 }
 
 
 // ========================================
 // DISPLAY MESSAGE
 // ========================================
-
 
 function addMessage(
     messageText,
@@ -406,10 +478,13 @@ function addMessage(
         message.classList.add(
             "received"
         );
+
     }
 
 
-    // Message text
+    // ========================================
+    // MESSAGE TEXT
+    // ========================================
 
     const messageTextElement =
         document.createElement("p");
@@ -419,7 +494,9 @@ function addMessage(
         messageText;
 
 
-    // Message time
+    // ========================================
+    // MESSAGE TIME
+    // ========================================
 
     const timeElement =
         document.createElement("span");
@@ -439,7 +516,9 @@ function addMessage(
         );
 
 
-    // Add text
+    // ========================================
+    // ADD TEXT TO MESSAGE
+    // ========================================
 
     message.appendChild(
         messageTextElement
@@ -464,13 +543,13 @@ function addMessage(
 
     chatMessages.scrollTop =
         chatMessages.scrollHeight;
+
 }
 
 
 // ========================================
 // START CHAT
 // ========================================
-
 
 async function startChat() {
 
