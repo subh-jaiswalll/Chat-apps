@@ -1,126 +1,68 @@
 const Message = require("../models/messageModels.js");
 const User = require("../models/userModels.js");
 
-
 // ========================================
 // CREATE MESSAGE
 // ========================================
 
 const createMessage = async (req, res) => {
+  const { message } = req.body;
 
-    const { message } =
-        req.body;
-
-
-    if (!message) {
-
-        return res.status(400).json({
-
-            message:
-                "Message is required"
-
-        });
-
-    }
-
-
-    const newMessage =
-        await Message.create({
-
-            userId:
-                req.user.id,
-
-            message:
-                message
-
-        });
-
-
-    res.status(201).json({
-
-        message:
-            "Message sent successfully",
-
-        data:
-            newMessage
-
+  if (!message) {
+    return res.status(400).json({
+      message: "Message is required",
     });
+  }
 
+  const newMessage = await Message.create({
+    userId: req.user.id,
+
+    message: message,
+  });
+
+  res.status(201).json({
+    message: "Message sent successfully",
+
+    data: newMessage,
+  });
 };
-
 
 // ========================================
 // GET ALL MESSAGES
 // ========================================
 
 const getMessages = async (req, res) => {
+  const messages = await Message.findAll({
+    order: [["createdAt", "ASC"]],
+  });
 
-    const messages =
-        await Message.findAll({
+  const messagesWithUser = await Promise.all(
+    messages.map(async function (message) {
+      const user = await User.findByPk(message.userId);
 
-            order: [
-                ["createdAt", "ASC"]
-            ]
+      return {
+        id: message.id,
 
-        });
+        userId: message.userId,
 
+        userName: user ? user.name : "Unknown User",
 
-    const messagesWithUser =
-        await Promise.all(
+        message: message.message,
 
-            messages.map(
-                async function (message) {
+        createdAt: message.createdAt,
+      };
+    }),
+  );
 
-                    const user =
-                        await User.findByPk(
-                            message.userId
-                        );
+  res.status(200).json({
+    message: "Messages fetched successfully",
 
-
-                    return {
-
-                        id:
-                            message.id,
-
-                        userId:
-                            message.userId,
-
-                        userName:
-                            user
-                                ? user.name
-                                : "Unknown User",
-
-                        message:
-                            message.message,
-
-                        createdAt:
-                            message.createdAt
-
-                    };
-
-                }
-            )
-
-        );
-
-
-    res.status(200).json({
-
-        message:
-            "Messages fetched successfully",
-
-        data:
-            messagesWithUser
-
-    });
-
+    data: messagesWithUser,
+  });
 };
 
-
 module.exports = {
+  createMessage,
 
-    createMessage,
-
-    getMessages
-
+  getMessages,
 };
