@@ -169,8 +169,36 @@ const getProfile = async (req, res) => {
     });
 };
 
+
+
+const getUsers = async (req, res) => {
+
+    const users = await User.findAll({
+        attributes: [
+            "id",
+            "name",
+            "email",
+            "number"
+        ]
+    });
+
+    const filteredUsers =
+        users.filter(function (user) {
+
+            return user.id !== req.user.id;
+
+        });
+
+    res.status(200).json({
+        message: "Users fetched successfully",
+        data: filteredUsers
+    });
+};
+
+
 module.exports = {
     createUser,
     loginUser,
-    getProfile
+    getProfile,
+    getUsers
 };

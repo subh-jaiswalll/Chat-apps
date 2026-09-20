@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Chat Window</title>
+    <title>Chat App</title>
 
     <link rel="stylesheet" href="style.css">
 
@@ -20,66 +20,163 @@
 
     <div class="chat-container">
 
-        <!-- Chat Header -->
+        <!-- =========================
+             SIDEBAR
+        ========================== -->
 
-        <div class="chat-header">
+        <div class="sidebar">
 
-            <div class="user-info">
+            <div class="sidebar-header">
 
-                <div class="profile-image" id="profileImage">
+                <h2>Chats</h2>
+
+                <button
+                    id="logoutButton"
+                    class="logout-button"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+
+            <!-- MY PROFILE -->
+
+            <div class="my-profile">
+
+                <div
+                    class="profile-circle"
+                    id="profileImage"
+                >
                     A
                 </div>
 
                 <div>
-                    <h3 id="userName">Loading...</h3>
+
+                    <h3 id="userName">
+                        Loading...
+                    </h3>
+
                     <p>Online</p>
+
                 </div>
 
             </div>
 
-            <!-- Logout -->
 
-            <button
-                id="logoutButton"
-                class="logout-button"
+            <!-- SEARCH -->
+
+            <div class="search-box">
+
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search users..."
+                >
+
+            </div>
+
+
+            <!-- USER LIST -->
+
+            <div
+                class="user-list"
+                id="userList"
             >
-                Logout
-            </button>
+
+            </div>
 
         </div>
 
 
-        <!-- Messages -->
+        <!-- =========================
+             CHAT SECTION
+        ========================== -->
 
-        <div
-            class="chat-messages"
-            id="chatMessages"
-        >
+        <div class="chat-section">
 
-        </div>
+            <!-- CHAT HEADER -->
+
+            <div class="chat-header">
+
+                <div class="user-info">
+
+                    <div
+                        class="profile-circle"
+                        id="chatProfileImage"
+                    >
+                        ?
+                    </div>
+
+                    <div>
+
+                        <h3 id="chatUserName">
+                            Select a user
+                        </h3>
+
+                        <p id="chatStatus">
+                            Select someone to start chatting
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
 
 
-        <!-- Message Input -->
+            <!-- MESSAGES -->
 
-        <div class="message-input">
-
-            <input
-                type="text"
-                id="messageInput"
-                placeholder="Type a message..."
+            <div
+                class="chat-messages"
+                id="chatMessages"
             >
 
-            <button id="sendButton">
-                Send
-            </button>
+                <div class="empty-message">
+
+                    <h2>
+                        Welcome to Chat App
+                    </h2>
+
+                    <p>
+                        Select a user from the left
+                        to start chatting.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- MESSAGE INPUT -->
+
+            <div class="message-area">
+
+                <input
+                    type="text"
+                    id="messageInput"
+                    placeholder="Select a user first..."
+                    disabled
+                >
+
+                <button
+                    id="sendButton"
+                    disabled
+                >
+                    Send
+                </button>
+
+            </div>
 
         </div>
 
     </div>
 
 
-<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
-<script src="script.js"></script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+    <script src="script.js"></script>
+
 </body>
 
 </html>

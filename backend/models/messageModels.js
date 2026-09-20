@@ -2,7 +2,6 @@ const { DataTypes } = require("sequelize");
 const Database = require("../utils/db.js");
 
 const Message = Database.define("Message", {
-
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -10,7 +9,12 @@ const Message = Database.define("Message", {
         allowNull: false
     },
 
-    userId: {
+    senderId: {
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
+
+    receiverId: {
         type: DataTypes.INTEGER,
         allowNull: false
     },
@@ -19,7 +23,6 @@ const Message = Database.define("Message", {
         type: DataTypes.TEXT,
         allowNull: false
     }
-
 });
 
 module.exports = Message;
