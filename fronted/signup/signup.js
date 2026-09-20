@@ -33,7 +33,7 @@ signupForm.addEventListener("submit", async function (event) {
 
         alert("Signup successful");
 
-        window.location.href = "login.html";
+        window.location.href = "/fronted/login/login.html";
 
     } else {
 

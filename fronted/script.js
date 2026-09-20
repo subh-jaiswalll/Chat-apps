@@ -1,272 +1,408 @@
-const messageInput = document.getElementById("messageInput");
+const messageInput =
+    document.getElementById("messageInput");
 
-const sendButton = document.getElementById("sendButton");
+const sendButton =
+    document.getElementById("sendButton");
 
-const chatMessages = document.getElementById("chatMessages");
+const chatMessages =
+    document.getElementById("chatMessages");
 
-const userName = document.getElementById("userName");
+const userName =
+    document.getElementById("userName");
 
-const profileImage = document.getElementById("profileImage");
+const profileImage =
+    document.getElementById("profileImage");
 
-const logoutButton = document.getElementById("logoutButton");
+const logoutButton =
+    document.getElementById("logoutButton");
+
 
 // Check login status
 
-const token = localStorage.getItem("token");
+const token =
+    localStorage.getItem("token");
 
-// Change Login / Logout button
 
 if (token) {
-  logoutButton.textContent = "Logout";
+
+    logoutButton.textContent = "Logout";
+
 } else {
-  logoutButton.textContent = "Login";
+
+    logoutButton.textContent = "Login";
 }
+
 
 // Login / Logout button
 
-logoutButton.addEventListener("click", function () {
-  const token = localStorage.getItem("token");
+logoutButton.addEventListener(
+    "click",
+    function () {
 
-  if (token) {
-    // User is logged in
-    // Logout
+        const token =
+            localStorage.getItem("token");
 
-    localStorage.removeItem("token");
 
-    localStorage.removeItem("userId");
+        if (token) {
 
-    window.location.href = "/fronted/login/login.html";
-  } else {
-    // User is not logged in
-    // Go to login page
+            localStorage.removeItem("token");
 
-    window.location.href = "/fronted/login/login.html";
-  }
-});
+            localStorage.removeItem("userId");
 
-// Send message button
+            window.location.href =
+                "../login/login.html";
 
-sendButton.addEventListener("click", sendMessage);
+        } else {
 
-// Send message with Enter
+            window.location.href =
+                "../login/login.html";
+        }
 
-messageInput.addEventListener("keypress", function (event) {
-  if (event.key === "Enter") {
-    sendMessage();
-  }
-});
+    }
+);
 
-// Load user profile
+
+// Load profile
 
 async function loadUserProfile() {
-  const token = localStorage.getItem("token");
 
-  // User is not logged in
+    const token =
+        localStorage.getItem("token");
 
-  if (!token) {
-    userName.textContent = "Guest";
 
-    profileImage.textContent = "G";
+    if (!token) {
 
-    logoutButton.textContent = "Login";
+        userName.textContent = "Guest";
 
-    return;
-  }
+        profileImage.textContent = "G";
 
-  // User is logged in
+        logoutButton.textContent = "Login";
 
-  const response = await fetch("http://localhost:3000/user/profile", {
-    method: "GET",
+        return;
+    }
 
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
 
-  const data = await response.json();
+    const response = await fetch(
+        "http://localhost:3000/user/profile",
+        {
+            method: "GET",
 
-  if (response.ok) {
-    // Show user name
+            headers: {
+                "Authorization":
+                    `Bearer ${token}`
+            }
+        }
+    );
 
-    userName.textContent = data.name;
 
-    // Show first letter
+    const data =
+        await response.json();
 
-    profileImage.textContent = data.name.charAt(0).toUpperCase();
 
-    // Save user ID
+    if (response.ok) {
 
-    localStorage.setItem("userId", data.id);
+        userName.textContent =
+            data.name;
 
-    // Change button
+        profileImage.textContent =
+            data.name
+                .charAt(0)
+                .toUpperCase();
 
-    logoutButton.textContent = "Logout";
-  } else {
-    // Token is invalid or expired
+        localStorage.setItem(
+            "userId",
+            data.id
+        );
 
-    localStorage.removeItem("token");
+        logoutButton.textContent =
+            "Logout";
 
-    localStorage.removeItem("userId");
+    } else {
 
-    userName.textContent = "Guest";
+        localStorage.removeItem("token");
 
-    profileImage.textContent = "G";
+        localStorage.removeItem("userId");
 
-    logoutButton.textContent = "Login";
-  }
+        userName.textContent =
+            "Guest";
+
+        profileImage.textContent =
+            "G";
+
+        logoutButton.textContent =
+            "Login";
+    }
 }
 
-// Get messages from database
+
+// Get old messages from database
 
 async function loadMessages() {
-  const token = localStorage.getItem("token");
 
-  // If user is not logged in,
-  // don't load messages
+    const token =
+        localStorage.getItem("token");
 
-  if (!token) {
-    return;
-  }
 
-  const response = await fetch("http://localhost:3000/message", {
-    method: "GET",
+    if (!token) {
 
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+        return;
+    }
 
-  const data = await response.json();
 
-  if (response.ok) {
-    // Remove old messages
-    // before loading database messages
+    const response = await fetch(
+        "http://localhost:3000/message",
+        {
+            method: "GET",
 
-    chatMessages.innerHTML = "";
+            headers: {
+                "Authorization":
+                    `Bearer ${token}`
+            }
+        }
+    );
 
-    // Display every message
 
-    data.data.forEach(function (message) {
-      addMessage(message.message, message.userId, message.createdAt);
-    });
-  } else {
-    alert(data.message);
-  }
+    const data =
+        await response.json();
+
+
+    if (response.ok) {
+
+        chatMessages.innerHTML = "";
+
+
+        data.data.forEach(
+            function (message) {
+
+                addMessage(
+                    message.message,
+                    message.userId,
+                    message.createdAt
+                );
+
+            }
+        );
+    }
 }
+
+
+// Create WebSocket connection
+
+const socket =
+    new WebSocket(
+        "ws://localhost:3000"
+    );
+
+
+// WebSocket connected
+
+socket.addEventListener(
+    "open",
+    function () {
+
+        console.log(
+            "WebSocket connected"
+        );
+
+    }
+);
+
+
+// Receive new message
+
+socket.addEventListener(
+    "message",
+    function (event) {
+
+        const message =
+            JSON.parse(event.data);
+
+
+        addMessage(
+            message.message,
+            message.userId,
+            message.createdAt
+        );
+
+    }
+);
+
+
+// WebSocket closed
+
+socket.addEventListener(
+    "close",
+    function () {
+
+        console.log(
+            "WebSocket disconnected"
+        );
+
+    }
+);
+
 
 // Send message
 
-async function sendMessage() {
-  const messageText = messageInput.value.trim();
+sendButton.addEventListener(
+    "click",
+    sendMessage
+);
 
-  // Don't send empty message
 
-  if (messageText === "") {
-    return;
-  }
+messageInput.addEventListener(
+    "keypress",
+    function (event) {
 
-  const token = localStorage.getItem("token");
+        if (event.key === "Enter") {
 
-  // Login required
+            sendMessage();
 
-  if (!token) {
-    window.location.href = "/fronted/login/login.html";
+        }
 
-    return;
-  }
+    }
+);
 
-  const response = await fetch("http://localhost:3000/message/send", {
-    method: "POST",
 
-    headers: {
-      "Content-Type": "application/json",
+// Send message through WebSocket
 
-      Authorization: `Bearer ${token}`,
-    },
+function sendMessage() {
 
-    body: JSON.stringify({
-      message: messageText,
-    }),
-  });
+    const messageText =
+        messageInput.value.trim();
 
-  const data = await response.json();
 
-  if (response.ok) {
-    // Show newly sent message
+    if (messageText === "") {
 
-    addMessage(messageText, localStorage.getItem("userId"), new Date());
+        return;
+    }
 
-    // Clear input
+
+    const token =
+        localStorage.getItem("token");
+
+
+    // Login required
+
+    if (!token) {
+
+        window.location.href =
+            "../login/login.html";
+
+        return;
+    }
+
+
+    const userId =
+        localStorage.getItem("userId");
+
+
+    // Send message to server
+
+    socket.send(
+        JSON.stringify({
+            userId: userId,
+            message: messageText
+        })
+    );
+
 
     messageInput.value = "";
-  } else {
-    alert(data.message);
-  }
 }
 
-// Add message to chat
 
-function addMessage(messageText, messageUserId, messageTime) {
-  const message = document.createElement("div");
+// Add message to UI
 
-  message.classList.add("message");
+function addMessage(
+    messageText,
+    messageUserId,
+    messageTime
+) {
 
-  // Get current user ID
+    const message =
+        document.createElement("div");
 
-  const currentUserId = localStorage.getItem("userId");
 
-  // Check sender
+    message.classList.add(
+        "message"
+    );
 
-  if (Number(messageUserId) === Number(currentUserId)) {
-    // Current user's message
 
-    message.classList.add("sent");
-  } else {
-    // Other user's message
+    const currentUserId =
+        localStorage.getItem("userId");
 
-    message.classList.add("received");
-  }
 
-  // Message text
+    if (
+        Number(messageUserId) ===
+        Number(currentUserId)
+    ) {
 
-  const messageTextElement = document.createElement("p");
+        message.classList.add(
+            "sent"
+        );
 
-  messageTextElement.textContent = messageText;
+    } else {
 
-  // Message time
+        message.classList.add(
+            "received"
+        );
+    }
 
-  const timeElement = document.createElement("span");
 
-  const time = new Date(messageTime);
+    const messageTextElement =
+        document.createElement("p");
 
-  timeElement.textContent = time.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 
-  message.appendChild(messageTextElement);
+    messageTextElement.textContent =
+        messageText;
 
-  message.appendChild(timeElement);
 
-  chatMessages.appendChild(message);
+    const timeElement =
+        document.createElement("span");
 
-  // Scroll to latest message
 
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+    const time =
+        new Date(messageTime);
+
+
+    timeElement.textContent =
+        time.toLocaleTimeString(
+            [],
+            {
+                hour: "2-digit",
+                minute: "2-digit"
+            }
+        );
+
+
+    message.appendChild(
+        messageTextElement
+    );
+
+    message.appendChild(
+        timeElement
+    );
+
+
+    chatMessages.appendChild(
+        message
+    );
+
+
+    chatMessages.scrollTop =
+        chatMessages.scrollHeight;
 }
+
 
 // Start chat
 
 async function startChat() {
-  // First load user
 
-  await loadUserProfile();
+    await loadUserProfile();
 
-  // Then load messages
+    await loadMessages();
 
-  await loadMessages();
 }
 
-// Start
 
 startChat();
