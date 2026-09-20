@@ -45,14 +45,19 @@ logoutButton.addEventListener(
 
         if (token) {
 
+            // Logout
+
             localStorage.removeItem("token");
 
             localStorage.removeItem("userId");
+
 
             window.location.href =
                 "../login/login.html";
 
         } else {
+
+            // Go to login page
 
             window.location.href =
                 "../login/login.html";
@@ -62,7 +67,7 @@ logoutButton.addEventListener(
 );
 
 
-// Load profile
+// Load user profile
 
 async function loadUserProfile() {
 
@@ -70,17 +75,24 @@ async function loadUserProfile() {
         localStorage.getItem("token");
 
 
+    // User is not logged in
+
     if (!token) {
 
-        userName.textContent = "Guest";
+        userName.textContent =
+            "Guest";
 
-        profileImage.textContent = "G";
+        profileImage.textContent =
+            "G";
 
-        logoutButton.textContent = "Login";
+        logoutButton.textContent =
+            "Login";
 
         return;
     }
 
+
+    // Get profile from backend
 
     const response = await fetch(
         "http://localhost:3000/user/profile",
@@ -101,27 +113,43 @@ async function loadUserProfile() {
 
     if (response.ok) {
 
+        // Show user name
+
         userName.textContent =
             data.name;
+
+
+        // Show first letter
 
         profileImage.textContent =
             data.name
                 .charAt(0)
                 .toUpperCase();
 
+
+        // Save user ID
+
         localStorage.setItem(
             "userId",
             data.id
         );
+
 
         logoutButton.textContent =
             "Logout";
 
     } else {
 
-        localStorage.removeItem("token");
+        // Token is invalid
 
-        localStorage.removeItem("userId");
+        localStorage.removeItem(
+            "token"
+        );
+
+        localStorage.removeItem(
+            "userId"
+        );
+
 
         userName.textContent =
             "Guest";
@@ -142,6 +170,8 @@ async function loadMessages() {
     const token =
         localStorage.getItem("token");
 
+
+    // No login
 
     if (!token) {
 
@@ -168,8 +198,12 @@ async function loadMessages() {
 
     if (response.ok) {
 
+        // Clear chat
+
         chatMessages.innerHTML = "";
 
+
+        // Display old messages
 
         data.data.forEach(
             function (message) {
@@ -186,22 +220,25 @@ async function loadMessages() {
 }
 
 
-// Create WebSocket connection
+// ========================================
+// SOCKET.IO
+// ========================================
+
+
+// Create Socket.IO connection
 
 const socket =
-    new WebSocket(
-        "ws://localhost:3000"
-    );
+    io("http://localhost:3000");
 
 
-// WebSocket connected
+// Socket connected
 
-socket.addEventListener(
-    "open",
+socket.on(
+    "connect",
     function () {
 
         console.log(
-            "WebSocket connected"
+            "Socket.IO connected"
         );
 
     }
@@ -210,12 +247,14 @@ socket.addEventListener(
 
 // Receive new message
 
-socket.addEventListener(
-    "message",
-    function (event) {
+socket.on(
+    "newMessage",
+    function (message) {
 
-        const message =
-            JSON.parse(event.data);
+        console.log(
+            "New message:",
+            message
+        );
 
 
         addMessage(
@@ -228,27 +267,34 @@ socket.addEventListener(
 );
 
 
-// WebSocket closed
+// Socket disconnected
 
-socket.addEventListener(
-    "close",
+socket.on(
+    "disconnect",
     function () {
 
         console.log(
-            "WebSocket disconnected"
+            "Socket.IO disconnected"
         );
 
     }
 );
 
 
-// Send message
+// ========================================
+// SEND MESSAGE
+// ========================================
+
+
+// Send button
 
 sendButton.addEventListener(
     "click",
     sendMessage
 );
 
+
+// Press Enter
 
 messageInput.addEventListener(
     "keypress",
@@ -264,7 +310,7 @@ messageInput.addEventListener(
 );
 
 
-// Send message through WebSocket
+// Send message
 
 function sendMessage() {
 
@@ -272,17 +318,19 @@ function sendMessage() {
         messageInput.value.trim();
 
 
+    // Empty message
+
     if (messageText === "") {
 
         return;
     }
 
 
+    // Check login
+
     const token =
         localStorage.getItem("token");
 
-
-    // Login required
 
     if (!token) {
 
@@ -293,25 +341,33 @@ function sendMessage() {
     }
 
 
+    // Get current user ID
+
     const userId =
         localStorage.getItem("userId");
 
 
     // Send message to server
 
-    socket.send(
-        JSON.stringify({
+    socket.emit(
+        "sendMessage",
+        {
             userId: userId,
             message: messageText
-        })
+        }
     );
 
+
+    // Clear input
 
     messageInput.value = "";
 }
 
 
-// Add message to UI
+// ========================================
+// DISPLAY MESSAGE
+// ========================================
+
 
 function addMessage(
     messageText,
@@ -328,9 +384,13 @@ function addMessage(
     );
 
 
+    // Current logged-in user
+
     const currentUserId =
         localStorage.getItem("userId");
 
+
+    // Check sender
 
     if (
         Number(messageUserId) ===
@@ -349,6 +409,8 @@ function addMessage(
     }
 
 
+    // Message text
+
     const messageTextElement =
         document.createElement("p");
 
@@ -356,6 +418,8 @@ function addMessage(
     messageTextElement.textContent =
         messageText;
 
+
+    // Message time
 
     const timeElement =
         document.createElement("span");
@@ -375,34 +439,53 @@ function addMessage(
         );
 
 
+    // Add text
+
     message.appendChild(
         messageTextElement
     );
+
+
+    // Add time
 
     message.appendChild(
         timeElement
     );
 
 
+    // Add message to chat
+
     chatMessages.appendChild(
         message
     );
 
+
+    // Scroll to bottom
 
     chatMessages.scrollTop =
         chatMessages.scrollHeight;
 }
 
 
-// Start chat
+// ========================================
+// START CHAT
+// ========================================
+
 
 async function startChat() {
 
+    // Load user
+
     await loadUserProfile();
+
+
+    // Load old messages
 
     await loadMessages();
 
 }
 
+
+// Start chat
 
 startChat();

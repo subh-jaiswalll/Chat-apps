@@ -3,25 +3,36 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
-const WebSocket = require("ws");
+const { Server } = require("socket.io");
 
 const sequelize = require("./utils/db");
+
 const User = require("./models/userModels.js");
 const Message = require("./models/messageModels.js");
 
 const userRoutes = require("./routes/userRoutes.js");
 const messageRoutes = require("./routes/messageRoutes.js");
 
+
 const app = express();
+
+
+// Middleware
 
 app.use(cors());
 app.use(express.json());
 
+
+// Routes
+
 app.use("/user", userRoutes);
 app.use("/message", messageRoutes);
 
-app.get("/", (req, res) => {
+
+app.get("/", function (req, res) {
+
     res.send("Hello Chats");
+
 });
 
 
@@ -30,69 +41,88 @@ app.get("/", (req, res) => {
 const server = http.createServer(app);
 
 
-// Create WebSocket server
+// Create Socket.IO server
 
-const wss = new WebSocket.Server({
-    server: server
+const io = new Server(server, {
+
+    cors: {
+        origin: "*"
+    }
+
 });
 
 
-// WebSocket connection
+// Socket.IO connection
 
-wss.on("connection", function (socket) {
+io.on("connection", function (socket) {
 
-    console.log("User connected");
+    console.log("User connected:", socket.id);
 
-    
-    socket.on("message", async function (data) {
 
-        const messageData =
-            JSON.parse(data);
+    // Receive message from frontend
 
+    socket.on("sendMessage", async function (data) {
+
+        console.log("Message received:", data);
+
+
+        // Save message in database
 
         const newMessage =
             await Message.create({
-                userId: messageData.userId,
-                message: messageData.message
+
+                userId: data.userId,
+
+                message: data.message
+
             });
 
 
         // Send message to all connected users
 
-        wss.clients.forEach(function (client) {
+        io.emit(
+            "newMessage",
+            {
+                id: newMessage.id,
 
-            if (client.readyState === WebSocket.OPEN) {
+                userId: newMessage.userId,
 
-                client.send(
-                    JSON.stringify({
-                        id: newMessage.id,
-                        userId: newMessage.userId,
-                        message: newMessage.message,
-                        createdAt: newMessage.createdAt
-                    })
-                );
+                message: newMessage.message,
 
+                createdAt: newMessage.createdAt
             }
-
-        });
+        );
 
     });
 
 
-    socket.on("close", function () {
+    // User disconnected
 
-        console.log("User disconnected");
+    socket.on("disconnect", function () {
+
+        console.log(
+            "User disconnected:",
+            socket.id
+        );
 
     });
 
 });
 
 
-sequelize.sync({ alter: true })
-    .then(() => {
+// Database connection
 
-        console.log("Database is connected");
-        console.log("Tables created");
+sequelize.sync({ alter: true })
+
+    .then(function () {
+
+        console.log(
+            "Database is connected"
+        );
+
+        console.log(
+            "Tables created"
+        );
 
 
         server.listen(
@@ -107,6 +137,7 @@ sequelize.sync({ alter: true })
         );
 
     })
+
     .catch(function (err) {
 
         console.log(
@@ -115,3 +146,142 @@ sequelize.sync({ alter: true })
         );
 
     });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// require("dotenv").config();
+
+// const express = require("express");
+// const cors = require("cors");
+// const http = require("http");
+// const WebSocket = require("ws");
+
+// const sequelize = require("./utils/db");
+// const User = require("./models/userModels.js");
+// const Message = require("./models/messageModels.js");
+
+// const userRoutes = require("./routes/userRoutes.js");
+// const messageRoutes = require("./routes/messageRoutes.js");
+
+// const app = express();
+
+// app.use(cors());
+// app.use(express.json());
+
+// app.use("/user", userRoutes);
+// app.use("/message", messageRoutes);
+
+// app.get("/", (req, res) => {
+//     res.send("Hello Chats");
+// });
+
+
+// // Create HTTP server
+
+// const server = http.createServer(app);
+
+
+// // Create WebSocket server
+
+// const wss = new WebSocket.Server({
+//     server: server
+// });
+
+
+// // WebSocket connection
+
+// wss.on("connection", function (socket) {
+
+//     console.log("User connected");
+
+    
+//     socket.on("message", async function (data) {
+
+//         const messageData =
+//             JSON.parse(data);
+
+
+//         const newMessage =
+//             await Message.create({
+//                 userId: messageData.userId,
+//                 message: messageData.message
+//             });
+
+
+//         // Send message to all connected users
+
+//         wss.clients.forEach(function (client) {
+
+//             if (client.readyState === WebSocket.OPEN) {
+
+//                 client.send(
+//                     JSON.stringify({
+//                         id: newMessage.id,
+//                         userId: newMessage.userId,
+//                         message: newMessage.message,
+//                         createdAt: newMessage.createdAt
+//                     })
+//                 );
+
+//             }
+
+//         });
+
+//     });
+
+
+//     socket.on("close", function () {
+
+//         console.log("User disconnected");
+
+//     });
+
+// });
+
+
+// sequelize.sync({ alter: true })
+//     .then(() => {
+
+//         console.log("Database is connected");
+//         console.log("Tables created");
+
+
+//         server.listen(
+//             process.env.PORT,
+//             function () {
+
+//                 console.log(
+//                     `Server is running at PORT ${process.env.PORT}`
+//                 );
+
+//             }
+//         );
+
+//     })
+//     .catch(function (err) {
+
+//         console.log(
+//             "Database error:",
+//             err
+//         );
+
+//     });
