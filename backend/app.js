@@ -16,6 +16,9 @@ const setupSocket = require("./socket.io/index.js");
 
 const app = express();
 
+
+
+
 // ========================================
 // MIDDLEWARE
 // ========================================
@@ -97,18 +100,7 @@ sequelize
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+  
 // require("dotenv").config();
 
 // const express = require("express");

@@ -2,89 +2,77 @@ const User = require("../models/userModels.js");
 const Message = require("../models/messageModels.js");
 
 function personalChat(socket, io) {
+  // =========================
+  // JOIN PERSONAL CHAT ROOM
+  // =========================
 
-    // =========================
-    // JOIN PERSONAL CHAT ROOM
-    // =========================
+  socket.on("join_room", async function (data) {
+    const receiverId = data.userId;
 
-    socket.on("join_room", async function (data) {
+    const senderId = socket.user.id;
 
-        const receiverId = data.userId;
+    if (!receiverId) {
+      return;
+    }
 
-        const senderId = socket.user.id;
+    const roomId = [senderId, receiverId]
+      .sort(function (a, b) {
+        return a - b;
+      })
+      .join("_");
 
-        if (!receiverId) {
-            return;
-        }
+    socket.join(roomId);
 
-        const roomId = [senderId, receiverId]
-            .sort(function (a, b) {
-                return a - b;
-            })
-            .join("_");
+    console.log("User", senderId, "joined room", roomId);
+  });
 
-        socket.join(roomId);
+  // =========================
+  // SEND NEW MESSAGE
+  // =========================
 
-        console.log(
-            "User",
-            senderId,
-            "joined room",
-            roomId
-        );
+  socket.on("new_message", async function (data) {
+    const receiverId = data.receiverId;
+    const messageText = data.message;
+
+    const senderId = socket.user.id;
+
+    if (!receiverId || !messageText) {
+      return;
+    }
+
+    const sender = await User.findByPk(senderId);
+
+    if (!sender) {
+      return;
+    }
+
+    const receiver = await User.findByPk(receiverId);
+
+    if (!receiver) {
+      return;
+    }
+
+    const newMessage = await Message.create({
+      senderId: senderId,
+      receiverId: receiverId,
+      message: messageText,
     });
 
+    const roomId = [senderId, receiverId]
+      .sort(function (a, b) {
+        return a - b;
+      })
+      .join("_");
 
-    // =========================
-    // SEND NEW MESSAGE
-    // =========================
-
-    socket.on("new_message", async function (data) {
-
-        const receiverId = data.receiverId;
-        const messageText = data.message;
-
-        const senderId = socket.user.id;
-
-        if (!receiverId || !messageText) {
-            return;
-        }
-
-        const sender = await User.findByPk(senderId);
-
-        if (!sender) {
-            return;
-        }
-
-        const receiver = await User.findByPk(receiverId);
-
-        if (!receiver) {
-            return;
-        }
-
-        const newMessage = await Message.create({
-            senderId: senderId,
-            receiverId: receiverId,
-            message: messageText
-        });
-
-        const roomId = [senderId, receiverId]
-            .sort(function (a, b) {
-                return a - b;
-            })
-            .join("_");
-
-        io.to(roomId).emit(
-            "new_message",
-            {
-                id: newMessage.id,
-                senderId: senderId,
-                receiverId: receiverId,
-                senderName: sender.name,
-                message: newMessage.message,
-                createdAt: newMessage.createdAt
-            }
-        );
+    io.to(roomId).emit("new_message", {
+      id: newMessage.id,
+      senderId: senderId,
+      receiverId: receiverId,
+      senderName: sender.name,
+      message: newMessage.message,
+      createdAt: newMessage.createdAt,
     });
+  });
 }
 
 module.exports = personalChat;
