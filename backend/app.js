@@ -16,42 +16,19 @@ const setupSocket = require("./socket.io/index.js");
 
 const app = express();
 
-
-
-
-// ========================================
-// MIDDLEWARE
-// ========================================
-
 app.use(cors());
 
 app.use(express.json());
-
-// ========================================
-// ROUTES
-// ========================================
 
 app.use("/user", userRoutes);
 
 app.use("/message", messageRoutes);
 
-// ========================================
-// HOME ROUTE
-// ========================================
-
 app.get("/", function (req, res) {
   res.send("Hello Chats");
 });
 
-// ========================================
-// CREATE HTTP SERVER
-// ========================================
-
 const server = http.createServer(app);
-
-// ========================================
-// CREATE SOCKET.IO SERVER
-// ========================================
 
 const io = new Server(server, {
   cors: {
@@ -59,15 +36,7 @@ const io = new Server(server, {
   },
 });
 
-// ========================================
-// SETUP SOCKET.IO
-// ========================================
-
 setupSocket(io);
-
-// ========================================
-// DATABASE CONNECTION
-// ========================================
 
 sequelize
   .sync()
@@ -76,10 +45,6 @@ sequelize
     console.log("Database is connected");
 
     console.log("Tables created");
-
-    // ========================================
-    // START SERVER
-    // ========================================
 
     server.listen(process.env.PORT, function () {
       console.log(`Server is running at PORT ${process.env.PORT}`);
@@ -100,7 +65,10 @@ sequelize
 
 
 
+
+
   
+
 // require("dotenv").config();
 
 // const express = require("express");

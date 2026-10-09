@@ -6,7 +6,6 @@ const Message = Database.define("Message", {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
-    allowNull: false,
   },
 
   senderId: {
