@@ -11,6 +11,9 @@ const sequelize = require("./utils/db.js");
 const userRoutes = require("./routes/userRoutes.js");
 
 const messageRoutes = require("./routes/messageRoutes.js");
+const groupRoutes = require("./routes/groupRoutes.js");
+const aiRoutes = require("./routes/aiRoutes.js");
+
 
 const setupSocket = require("./socket.io/index.js");
 
@@ -19,10 +22,16 @@ const app = express();
 app.use(cors());
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/user", userRoutes);
 
 app.use("/message", messageRoutes);
+
+app.use("/group", groupRoutes);
+
+app.use("/ai", aiRoutes);
+
 
 app.get("/", function (req, res) {
   res.send("Hello Chats");
