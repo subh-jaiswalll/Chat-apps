@@ -50,7 +50,7 @@ setupSocket(io);
 sequelize
   .sync()
 
-  .then(function () {
+  .then(() => {
     console.log("Database is connected");
 
     console.log("Tables created");
@@ -60,7 +60,7 @@ sequelize
     });
   })
 
-  .catch(function (err) {
+  .catch( (err) => {
     console.log("Database error:", err);
   });
 
