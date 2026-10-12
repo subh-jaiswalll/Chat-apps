@@ -1,8 +1,6 @@
 const jwt = require("jsonwebtoken");
 
-// ========================================
 // SOCKET.IO AUTHENTICATION
-// ========================================
 
 function socketMiddleware(socket, next) {
   // Get token

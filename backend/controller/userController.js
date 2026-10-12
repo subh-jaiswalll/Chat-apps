@@ -85,6 +85,7 @@ const createUser = async (req, res) => {
   // 10. Send response
   res.status(201).json({
     message: "User created successfully",
+    user : user
   });
 };
 
@@ -129,7 +130,7 @@ const loginUser = async (req, res) => {
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: "1h",
+      expiresIn: "1d",
     },
   );
 
